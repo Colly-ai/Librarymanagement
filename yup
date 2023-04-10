@@ -1,0 +1,231 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+
+class Book {
+    private String title;
+    private String author;
+    private String ISBN;
+    private boolean available;
+
+    public Book(String title, String author, String ISBN) {
+        this.title = title;
+        this.author = author;
+        this.ISBN = ISBN;
+        this.available = true;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public String getISBN() {
+        return ISBN;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
+    }
+
+	public void setTitle(String title2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void setAuthor(String author2) {
+		// TODO Auto-generated method stub
+		
+	}
+}
+
+class Library {
+    private ArrayList<Book> books;
+
+    public Library() {
+        this.books = new ArrayList<>();
+    }
+
+    public void addBook(Book book) {
+        books.add(book);
+    }
+
+    public void removeBook(Book book) {
+        books.remove(book);
+    }
+
+    public void updateBook(Book book) {
+        for (int i = 0; i < books.size(); i++) {
+            if (books.get(i).getISBN().equals(book.getISBN())) {
+                books.set(i, book);
+            }
+        }
+    }
+
+    public ArrayList<Book> getAllBooks() {
+        return books;
+    }
+
+    public ArrayList<Book> searchByTitle(String title) {
+        ArrayList<Book> results = new ArrayList<>();
+        for (Book book : books) {
+            if (book.getTitle().toLowerCase().contains(title.toLowerCase())) {
+                results.add(book);
+            }
+        }
+        return results;
+    }
+
+    public ArrayList<Book> searchByAuthor(String author) {
+        ArrayList<Book> results = new ArrayList<>();
+        for (Book book : books) {
+            if (book.getAuthor().toLowerCase().contains(author.toLowerCase())) {
+                results.add(book);
+            }
+        }
+        return results;
+    }
+
+    public ArrayList<Book> searchByISBN(String ISBN) {
+        ArrayList<Book> results = new ArrayList<>();
+        for (Book book : books) {
+            if (book.getISBN().equals(ISBN)) {
+                results.add(book);
+            }
+        }
+        return results;
+    }
+}
+
+class User {
+    private String username;
+    private String password;
+
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+}
+
+class Librarian extends User {
+    public Librarian(String username, String password) {
+        super(username, password);
+    }
+
+    public void addBook(Library library, Book book) {
+        library.addBook(book);
+    }
+
+    public void removeBook(Library library, Book book) {
+        library.removeBook(book);
+    }
+
+    public void updateBook(Library library, Book book) {
+        library.updateBook(book);
+    }
+
+    public ArrayList<Book> getAllBooks(Library library) {
+        return library.getAllBooks();
+    }
+}
+
+class Student extends User {
+    private ArrayList<Book> borrowedBooks;
+
+    public Student(String username, String password) {
+        super(username, password);
+        this.borrowedBooks = new ArrayList<>();
+    }
+
+    public void borrowBook(Library library, Book book) {
+        if (book.isAvailable()) {
+            book.setAvailable(false);
+            borrowedBooks.add(book);
+        } else {
+            System.out.println("Book is not available for borrowing.");
+        }
+    }
+
+    public void returnBook(Library library, Book book) {
+        if (borrowedBooks.contains(book)) {
+            book.setAvailable(true);
+            borrowedBooks.remove(book);
+            
+            System.out.println("Book returned.");
+        } else {
+            System.out.println("You did not borrow this book.");
+        }
+    }
+
+    public ArrayList<Book> getBorrowedBooks() {
+        return borrowedBooks;
+    }
+
+	public ArrayList<Book> searchByAuthor(String string) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}
+
+public class LibraryManagementSystem {
+    public static void main(String[] args) {
+        Library library = new Library();
+        Book book1 = new Book("The Great Gatsby", "F. Scott Fitzgerald", "978-0743273565");
+        Book book2 = new Book("To Kill a Mockingbird", "Harper Lee", "978-0446310789");
+        Book book3 = new Book("1984", "George Orwell", "978-0451524935");
+        library.addBook(book1);
+        library.addBook(book2);
+        library.addBook(book3);
+
+        Librarian librarian = new Librarian("librarian", "password");
+        Student student = new Student("student", "password");
+
+        // Librarian adds a book
+        Book newBook = new Book("Pride and Prejudice", "Jane Austen", "978-0486284736");
+        librarian.addBook(library, newBook);
+
+        ArrayList<Book> searchResults = student.searchByAuthor("F. Scott Fitzgerald");
+        if (searchResults != null) {
+            Iterator<Book> iterator = searchResults.iterator();
+            System.out.println("Search Results:");
+            while (iterator.hasNext()) {
+                Book book = iterator.next();
+                System.out.println(book.getTitle() + " by " + book.getAuthor());
+            }
+        } else {
+            System.out.println("No search results found.");
+        }
+
+        // Student borrows a book
+        Book borrowedBook = searchResults.get(0);
+        student.borrowBook(library, borrowedBook);
+
+        // Librarian updates a book
+        borrowedBook.setAvailable(true);
+        librarian.updateBook(library, borrowedBook);
+
+        // Student returns a book
+        student.returnBook(library, borrowedBook);
+
+        // Print borrowed books for student
+        System.out.println("Borrowed Books:");
+        ArrayList<Book> borrowedBooks = student.getBorrowedBooks();
+        for (Book book : borrowedBooks) {
+            System.out.println(book.getTitle());
+        }
+    }
+}
